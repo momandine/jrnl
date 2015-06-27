@@ -41,6 +41,7 @@ def parse_args(args=None):
     reading.add_argument('-and', dest='strict', action="store_true", help='Filter by tags using AND (default: OR)')
     reading.add_argument('-starred', dest='starred', action="store_true", help='Show only starred entries')
     reading.add_argument('-n', dest='limit', default=None, metavar="N", help="Shows the last n entries matching the filter. '-n 3' and '-3' have the same effect.", nargs="?", type=int)
+    reading.add_argument('-rand', dest='rand', action='store_true', help='Random past entry')
 
     exporting = parser.add_argument_group('Export / Import', 'Options for transmogrifying your journal')
     exporting.add_argument('--short', dest='short', action="store_true", help='Show only titles or line containing the search tags')
@@ -61,7 +62,7 @@ def guess_mode(args, config):
     if args.decrypt is not False or args.encrypt is not False or args.export is not False or any((args.short, args.tags, args.edit)):
         compose = False
         export = True
-    elif any((args.start_date, args.end_date, args.on_date, args.limit, args.strict, args.starred)):
+    elif any((args.start_date, args.end_date, args.on_date, args.limit, args.strict, args.starred, args.rand)):
         # Any sign of displaying stuff?
         compose = False
     elif args.text and all(word[0] in config['tagsymbols'] for word in " ".join(args.text).split()):
@@ -234,7 +235,7 @@ def run(manual_args=None):
                        strict=args.strict,
                        short=args.short,
                        starred=args.starred)
-        journal.limit(args.limit)
+        journal.limit(args.limit, args.rand)
 
     # Reading mode
     if not mode_compose and not mode_export:

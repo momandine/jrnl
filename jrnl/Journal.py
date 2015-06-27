@@ -6,6 +6,7 @@ from . import Entry
 from . import util
 from . import time
 import codecs
+import random
 import re
 from datetime import datetime
 import sys
@@ -189,10 +190,18 @@ class Journal(object):
         """Sorts the Journal's entries by date"""
         self.entries = sorted(self.entries, key=lambda entry: entry.date)
 
-    def limit(self, n=None):
+    def limit(self, n=None, rand=False):
         """Removes all but the last n entries"""
+        if rand:
+            # By default, get one random entry, unless the user specifies more using the -n flag.
+            n = 1 if n is None else n
         if n:
-            self.entries = self.entries[-n:]
+            # Make sure you don't request more entries than exist in the journal.
+            n = min(len(self.entries), n)
+            if not rand:
+                self.entries = self.entries[-n:]
+            else:
+                self.entries = random.sample(self.entries, n)
 
     def filter(self, tags=[], start_date=None, end_date=None, starred=False, strict=False, short=False):
         """Removes all entries from the journal that don't match the filter.
